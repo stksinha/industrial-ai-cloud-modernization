@@ -36,28 +36,30 @@ FinOps Strategy: Implemented AWS Tagging and Auto-Scaling policies to ensure the
 Observability: Integrated Prometheus-style metrics to monitor the health of the containerized middleware.
 
 ### 5. How to Deploy (Quick Start)
-Prerequisites
+
+**Prerequisites**
 AWS CLI & Terraform installed.
 
 A valid Google AI Studio API Key (for Gemini).
 
 Ansible 2.15+.
 
-Steps
+**Steps**
 Provision Infrastructure:
 
-Bash
 cd terraform
 terraform init && terraform apply -auto-approve
+
+
 Configure Edge Node:
 
-Bash
 cd ansible
 ansible-playbook -i inventory setup-edge.yml
+
 Deploy to Kubernetes:
 
-Bash
 kubectl apply -f kubernetes/manifests/
+
 ### 6. Future Roadmap
 [ ] Integration with Snowflake for long-term Data Lake storage.
 
@@ -72,4 +74,4 @@ Certifications: CKA, Google GenAI Leader, DevOps Practitioner.
 
 Current Location: Peterborough, UK.
 
-Connect: LinkedIn | Email
+Connect: www.linkedin.com/in/satyaki-sinha | stksinha@gmail.com
