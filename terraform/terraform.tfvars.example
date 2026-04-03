@@ -1,0 +1,28 @@
+# terraform/terraform.tfvars.example
+# Copy this file to terraform.tfvars and customize the values for your environment
+
+region = "eu-west-2"
+
+# VPC Configuration
+vpc_cidr       = "10.0.0.0/16"
+azs            = ["eu-west-2a", "eu-west-2b"]
+private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+# EKS Cluster Configuration
+cluster_name       = "industrial-ai-cluster"
+cluster_version    = "1.29"
+node_desired_size  = 2
+node_min_size      = 1
+node_max_size      = 3
+node_instance_types = ["t3.medium"]
+
+# Environment and Tags
+environment = "production"
+project_tags = {
+  Project     = "industrial-ai-cloud-modernization"
+  Owner       = "DevOps-Team"
+  Environment = "production"
+  Terraform   = "true"
+  CreatedDate = "2026-04-03"
+}
