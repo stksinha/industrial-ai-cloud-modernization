@@ -97,7 +97,7 @@ Verify deployment status:
 
 ```bash
 kubectl get pods -A
-kubectl logs -f deployment/rag-assistant -n default
+kubectl logs -f deployment/genai-industrial-agent -n default
 ```
 
 ### 6. Future Roadmap
