@@ -4,7 +4,7 @@ Architecting the Bridge between Legacy Manufacturing & Generative AI
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-blue?logo=terraform)
 ![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-blue?logo=kubernetes)
 ![GenAI](https://img.shields.io/badge/AI-LangChain%20%26%20Gemini-purple?logo=google)
-![Status](https://img.shields.io/badge/Status-Production%20Ready-green)
+![Status](https://img.shields.io/badge/Status-InProgress-orange)
 
 ## Table of Contents
 1. [Executive Summary](#1-executive-summary)
@@ -29,7 +29,7 @@ This project is designed for industrial organizations looking to modernize their
 ### 2. System Architecture
 
 #### Cloud-Native Architecture Diagram:
-<img width="1561" height="5067" alt="Cloud-Native Architecture: IoT Middleware to Generative AI Pipeline" src="https://github.com/user-attachments/assets/7f06a1c9-81c8-4d04-bffb-83f2f7472078" />
+<img width="1561" height="5067" alt="Cloud-Native Architecture: IoT Middleware to Generative AI Pipeline" src="images/IoT Middleware to GenAI.png" />
 
 The diagram illustrates the complete flow from edge devices through cloud infrastructure to the AI-powered troubleshooting assistant.
 
