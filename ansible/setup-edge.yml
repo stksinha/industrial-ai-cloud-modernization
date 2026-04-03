@@ -1,33 +1,167 @@
-# ansible/setup-edge.yml
 ---
+# ansible/setup-edge.yml
+# Playbook for hardening and middleware setup of Industrial Gateway edge nodes
+# This playbook performs security hardening, deploys Apache middleware, configures
+# firewall rules, and deploys custom configurations for IoT data listeners.
+#
+# Usage: ansible-playbook -i inventory/edge_nodes.ini ansible/setup-edge.yml
+#
+
 - name: Hardening and Middleware Setup for Industrial Gateway
   hosts: edge_nodes
-  become: yes
+  become: yes  
+  
+  vars:
+    # Security packages for edge node hardening
+    security_packages:
+      - curl
+      - vim
+      - ufw
+      - fail2ban
+    
+    # Apache middleware configuration
+    apache_package: apache2
+    apache_config_dest: /etc/apache2/sites-available/000-default.conf
+    apache_config_src: ./configs/middleware.conf
+    
+    # IoT data listener port
+    iot_listener_port: 8080
+  
   tasks:
-    - name: Install essential security packages
+    # ========== SECURITY HARDENING ==========
+    - name: Install essential security packages for edge hardening
       apt:
-        name: [ 'curl', 'vim', 'ufw', 'fail2ban' ]
+        name: "{{ security_packages + [apache_package] }}"
         state: present
+        update_cache: yes
+        cache_valid_time: 3600
+      register: apt_install_result
+      retries: 3
+      delay: 5
+      until: apt_install_result is succeeded
+      tags:
+        - security
+        - packages
 
-    - name: Deploy Apache Middleware (Legacy Data Listener)
-      apt:
-        name: apache2
-        state: present
+    # ========== FIREWALL CONFIGURATION ==========
+    - name: Enable UFW firewall
+      ufw:
+        state: enabled
+      tags:
+        - security
+        - firewall
 
-    - name: Configure Firewall to allow IoT Data (Port 8080)
+    - name: Configure firewall to allow IoT data ingestion on port {{ iot_listener_port }}
       ufw:
         rule: allow
-        port: '8080'
+        port: "{{ iot_listener_port }}"
         proto: tcp
+      tags:
+        - security
+        - firewall
 
-    - name: Deploy Custom Middleware Config
+    - name: Configure firewall to allow SSH access (port 22)
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+      tags:
+        - security
+        - firewall
+
+    - name: Display firewall status
+      command: ufw status
+      register: firewall_status
+      changed_when: false
+      tags:
+        - security
+        - firewall
+
+    - name: Debug firewall status
+      debug:
+        msg: "{{ firewall_status.stdout_lines }}"
+      tags:
+        - security
+        - firewall
+
+    # ========== APACHE MIDDLEWARE DEPLOYMENT ==========
+    - name: Verify middleware config file exists
+      stat:
+        path: "{{ apache_config_src }}"
+      register: config_file_stat
+      failed_when: not config_file_stat.stat.exists
+      tags:
+        - apache
+        - config
+
+    - name: Deploy custom middleware configuration to Apache
       copy:
-        src: ./configs/middleware.conf
-        dest: /etc/apache2/sites-available/000-default.conf
-      notify: Restart Apache
+        src: "{{ apache_config_src }}"
+        dest: "{{ apache_config_dest }}"
+        backup: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Validate and restart Apache
+      tags:
+        - apache
+        - config
+
+    - name: Enable Apache modules required for IoT listener
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - rewrite
+        - proxy
+        - proxy_http
+      notify: Validate and restart Apache
+      tags:
+        - apache
+        - config
+
+    # ========== SERVICE ENABLEMENT ==========
+    - name: Enable Apache2 service to start on boot
+      systemd:
+        name: apache2
+        enabled: yes
+        state: started
+      tags:
+        - apache
+        - service
+
+    - name: Enable fail2ban service for intrusion detection
+      systemd:
+        name: fail2ban
+        enabled: yes
+        state: started
+      tags:
+        - security
+        - service
 
   handlers:
-    - name: Restart Apache
-      service:
+    - name: Validate Apache configuration
+      command: apache2ctl configtest
+      register: apache_config_test
+      failed_when: apache_config_test.rc not in [0, 1]
+      changed_when: false
+      listen: Validate and restart Apache
+      tags:
+        - apache
+
+    - name: Restart Apache service
+      systemd:
         name: apache2
         state: restarted
+      listen: Validate and restart Apache
+      tags:
+        - apache
+
+    - name: Verify Apache is running
+      command: systemctl is-active apache2
+      register: apache_status
+      failed_when: apache_status.rc != 0
+      changed_when: false
+      listen: Validate and restart Apache
+      tags:
+        - apache
