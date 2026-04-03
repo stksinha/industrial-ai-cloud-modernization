@@ -1,0 +1,33 @@
+# ansible/setup-edge.yml
+---
+- name: Hardening and Middleware Setup for Industrial Gateway
+  hosts: edge_nodes
+  become: yes
+  tasks:
+    - name: Install essential security packages
+      apt:
+        name: [ 'curl', 'vim', 'ufw', 'fail2ban' ]
+        state: present
+
+    - name: Deploy Apache Middleware (Legacy Data Listener)
+      apt:
+        name: apache2
+        state: present
+
+    - name: Configure Firewall to allow IoT Data (Port 8080)
+      ufw:
+        rule: allow
+        port: '8080'
+        proto: tcp
+
+    - name: Deploy Custom Middleware Config
+      copy:
+        src: ./configs/middleware.conf
+        dest: /etc/apache2/sites-available/000-default.conf
+      notify: Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
