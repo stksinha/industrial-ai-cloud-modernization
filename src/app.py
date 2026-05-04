@@ -61,7 +61,7 @@ def analyze_telemetry():
     {
         "status": "success" or "error",
         "analysis": "AI-generated analysis",
-        "handled_by": "Honeywell-AI-Cloud-Gateway"
+        "handled_by": "AI-Cloud-Gateway"
     }
     """
     # Validate input
