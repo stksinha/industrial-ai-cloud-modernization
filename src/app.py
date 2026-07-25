@@ -106,7 +106,7 @@ def analyze_telemetry():
         return jsonify({
             "status": "success",
             "analysis": response.text,
-            "handled_by": "Honeywell-AI-Cloud-Gateway"
+            "handled_by": "AI-Cloud-Gateway"
         }), 200
         
     except genai.types.BlockedPromptException as e:
@@ -137,7 +137,7 @@ def analyze_telemetry():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for Kubernetes liveness probes."""
-    return jsonify({"status": "healthy", "service": "Honeywell-AI-Cloud-Gateway"}), 200
+    return jsonify({"status": "healthy", "service": "AI-Cloud-Gateway"}), 200
 
 
 @app.errorhandler(429)
